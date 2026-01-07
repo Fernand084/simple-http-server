@@ -2,6 +2,7 @@ package server;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -24,15 +25,42 @@ public class TcpServer {
                     new InputStreamReader(clientSocket.getInputStream())
                 );
 
-                String line;
-                System.out.println("---- Incoming data ----");
+                OutputStream out = clientSocket.getOutputStream();
 
-                // Read line by line until the client stop sending data
+                // 1 read request line
+                String requestLine = reader.readLine();
+                if (requestLine == null || requestLine.isEmpty()) {
+                    clientSocket.close();
+                    continue;
+                }
+                System.out.println("Request: "+requestLine);
+
+                // 2 parse request line
+                String[] parts = requestLine.split(" ");
+                String method = parts[0];
+                String path = parts[1];
+
+                // 3 read and discard headers
+                String line;
                 while ((line = reader.readLine()) != null && !line.isEmpty()) {
-                    System.out.println(line);
+                    // ignored headers
                 }
 
-                System.out.println("---- End of data ----");
+                // 4 create response body
+                String responseBody = "Hello world!";
+
+                // 5 build http response
+                String response =
+                    "HTTP/1.1 200 OK\r\n" +
+                    "Content-Type: text/plain\r\n" +
+                    "Content-length: " + responseBody.length() + "\r\n" +
+                    "\r\n" +
+                    responseBody;
+
+                // 6 send response
+                out.write(response.getBytes());
+                out.flush();
+                
                 clientSocket.close();
             }
         } catch (Exception e) {
