@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.LocalDateTime;
 
 /**
  * TcpServer
@@ -46,12 +47,43 @@ public class TcpServer {
                     // ignored headers
                 }
 
-                // 4 create response body
-                String responseBody = "Hello world!";
+                // 4 routing
+                String responseBody;
+                int statusCode;
+                String statusText;
+
+                if (!method.equals("GET")) {
+                    statusCode = 405;
+                    statusText = "Method not allowed";
+                    responseBody = "Only GET is supported";
+                }else{
+                    switch (path) {
+                        case "/":
+                            statusCode = 200;
+                            statusText = "OK";
+                            responseBody = "Welcome to my Java HTTP Server!";
+                            break;
+                        case "/hello":
+                            statusCode = 200;
+                            statusText = "OK";
+                            responseBody = "Hello from Java!";
+                            break;
+                        case "/time":
+                            statusCode = 200;
+                            statusText = "OK";
+                            responseBody = "Server time: " + LocalDateTime.now();
+                            break;
+                        default:
+                            statusCode = 404;
+                            statusText = "Not Found";
+                            responseBody = "404 - Page NOT found";
+                    }
+                }
+
 
                 // 5 build http response
                 String response =
-                    "HTTP/1.1 200 OK\r\n" +
+                    "HTTP/1.1 " + statusCode + " " + statusText + "\r\n" +
                     "Content-Type: text/plain\r\n" +
                     "Content-length: " + responseBody.length() + "\r\n" +
                     "\r\n" +
