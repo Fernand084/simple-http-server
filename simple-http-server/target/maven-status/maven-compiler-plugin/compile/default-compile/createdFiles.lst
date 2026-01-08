@@ -1,0 +1,4 @@
+com/edgarlop/http/HttpResponse.class
+com/edgarlop/http/HttpRequest.class
+com/edgarlop/TcpServer.class
+com/edgarlop/router/Router.class
