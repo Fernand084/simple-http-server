@@ -34,7 +34,7 @@ public class HttpResponse {
 
     public byte[] toBytes(){
         StringBuilder sb = new StringBuilder();
-        sb.append("HTTP/1.1")
+        sb.append("HTTP/1.1 ")
             .append(statusCode)
             .append(" ")
             .append(statusText)

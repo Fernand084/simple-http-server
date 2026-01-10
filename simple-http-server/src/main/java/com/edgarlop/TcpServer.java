@@ -32,7 +32,8 @@ public class TcpServer {
                 HttpRequest request = new HttpRequest(reader);
                 HttpResponse response = router.route(request);
 
-                clientSocket.getOutputStream().write(response.toBytes()); 
+
+                clientSocket.getOutputStream().write(response.toBytes());
                 clientSocket.close();
             }
         } catch (Exception e) {
