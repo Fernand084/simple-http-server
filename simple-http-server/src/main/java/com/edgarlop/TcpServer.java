@@ -1,11 +1,8 @@
 package com.edgarlop;
 
-import com.edgarlop.http.HttpRequest;
-import com.edgarlop.http.HttpResponse;
 import com.edgarlop.router.Router;
+import com.edgarlop.server.ClientHandler;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -16,25 +13,19 @@ public class TcpServer {
 
    public static void main(String[] args) {
         int port = 8080;
-        System.out.println("Starting TCP server on port "+port+"...");
+        System.out.println("HTTP Server running  on port "+port+"...");
 
         Router router = new Router();
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {
            // server is listening for connections
             while (true) {
-                Socket clientSocket = serverSocket.accept(); // Blocks thread and awaits for a client to connect
+                Socket clientSocket = serverSocket.accept(); 
 
-                BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(clientSocket.getInputStream())
+                Thread thread = new Thread(
+                    new ClientHandler(clientSocket, router)
                 );
-
-                HttpRequest request = new HttpRequest(reader);
-                HttpResponse response = router.route(request);
-
-
-                clientSocket.getOutputStream().write(response.toBytes());
-                clientSocket.close();
+                thread.start();
             }
         } catch (Exception e) {
             // TODO: handle exception
