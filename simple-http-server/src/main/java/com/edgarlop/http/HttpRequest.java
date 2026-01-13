@@ -5,18 +5,16 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * HttpRequest
- */
 public class HttpRequest {
 
     private final String method;
     private final String path;
     private final String version;
     private final Map<String, String> headers = new HashMap<>();
+    private String body = "";
 
     public HttpRequest(BufferedReader reader) throws IOException {
-        // request line
+        // 1️⃣ Request line
         String requestLine = reader.readLine();
         if (requestLine == null || requestLine.isEmpty()) {
             throw new IOException("Empty request");
@@ -27,35 +25,40 @@ public class HttpRequest {
         this.path = parts[1];
         this.version = parts[2];
 
-        //headers
+        // 2️⃣ Headers
         String line;
-        while((line = reader.readLine()) != null && !line.isEmpty()){
-            String[] headerParts = line.split(":",2);
+        while ((line = reader.readLine()) != null && !line.isEmpty()) {
+            String[] headerParts = line.split(":", 2);
             headers.put(
-                headerParts[0].trim(),
-                headerParts[1].trim()
+                    headerParts[0].trim(),
+                    headerParts[1].trim()
             );
         }
-    }
-    
 
-    public String getMethod(){
+        // 3️⃣ Body (solo si existe Content-Length)
+        String contentLengthHeader = headers.get("Content-Length");
+        if (contentLengthHeader != null) {
+            int contentLength = Integer.parseInt(contentLengthHeader);
+            char[] bodyChars = new char[contentLength];
+            reader.read(bodyChars, 0, contentLength);
+            body = new String(bodyChars);
+        }
+    }
+
+    public String getMethod() {
         return method;
     }
 
-    public String getPath(){
+    public String getPath() {
         return path;
     }
 
-    public String getVersion(){
-        return version;
-    }
-
-    public String getHeader(String name){
+    public String getHeader(String name) {
         return headers.get(name);
     }
 
-    public Map<String, String> getHeaders(){
-        return headers;
+    public String getBody() {
+        return body;
     }
 }
+
