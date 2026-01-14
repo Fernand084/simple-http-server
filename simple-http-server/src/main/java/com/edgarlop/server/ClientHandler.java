@@ -8,34 +8,61 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
-/**
- * ClientHandler
- */
 public class ClientHandler implements Runnable {
 
-    private final Socket clientSocket;
+    private final Socket socket;
     private final Router router;
 
-    public ClientHandler(Socket clientSocket, Router router){
-        this.clientSocket = clientSocket;
+    public ClientHandler(Socket socket, Router router) {
+        this.socket = socket;
         this.router = router;
     }
 
     @Override
-    public void run(){
+    public void run() {
         try {
+            socket.setSoTimeout(10_000); // 10 segundos
+
             BufferedReader reader = new BufferedReader(
-                new InputStreamReader(clientSocket.getInputStream())
+                    new InputStreamReader(socket.getInputStream())
             );
 
-            HttpRequest request = new HttpRequest(reader);
-            HttpResponse response = router.route(request);
+            while (true) {
+                HttpRequest request;
 
-            clientSocket.getOutputStream().write(response.toBytes());
-            clientSocket.close();
+                try {
+                    request = new HttpRequest(reader);
+                } catch (Exception e) {
+                    break; // cliente cerró conexión
+                }
+
+                HttpResponse response = router.route(request);
+
+                // Keep-Alive logic
+                String connectionHeader = request.getHeader("Connection");
+                boolean close =
+                        connectionHeader != null &&
+                        connectionHeader.equalsIgnoreCase("close");
+
+                if (close) {
+                    response.addHeader("Connection", "close");
+                } else {
+                    response.addHeader("Connection", "keep-alive");
+                }
+
+                socket.getOutputStream().write(response.toBytes());
+                socket.getOutputStream().flush();
+
+                if (close) {
+                    break;
+                }
+            }
+
+            socket.close();
+
         } catch (Exception e) {
-            // TODO: handle exception
             e.printStackTrace();
         }
     }
 }
+
