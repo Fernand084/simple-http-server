@@ -14,6 +14,12 @@ public class HttpResponse {
     private String body = "";
     private final Map<String, String> headers = new HashMap<>();
 
+    public HttpResponse(int code, String statusText,String contentType, String body){
+        this.statusCode = code;
+        this.statusText = statusText;
+        headers.put("Content-Type", contentType);
+        this.body = body;
+    }
     public HttpResponse(){
         headers.put("Content-Type", "text/plain");
     }
@@ -30,6 +36,18 @@ public class HttpResponse {
 
     public void addHeader(String name, String value){
         headers.put(name, value);
+    }
+
+    public int getStatusCode(){
+        return this.statusCode;
+    }
+
+    public String getBody(){
+        return this.body;
+    }
+
+    public String getStatusText(){
+        return this.statusText;
     }
 
     public byte[] toBytes(){
@@ -51,5 +69,23 @@ public class HttpResponse {
         sb.append(body);
 
         return sb.toString().getBytes(StandardCharsets.UTF_8);
+    }
+
+    public static HttpResponse notFound(){
+        return new HttpResponse(
+            404,
+            "Not Found",
+            "text/plain",
+            "Sorry, the route you're looking for does not exists."
+        );
+    }
+
+    public static HttpResponse internalServerError(){
+        return new HttpResponse(
+            500,
+            "Internal Server Error",
+            "text/plain",
+            "Something went wrong"
+        );
     }
 }

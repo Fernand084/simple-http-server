@@ -38,8 +38,7 @@ public class Router {
         if (request.getPath().equals("/echo")) {
             response.setBody("You sent: " + request.getBody());
         } else {
-            response.setStatus(404, "Not Found");
-            response.setBody("POST endpoint not found");
+            HttpResponse.notFound();
         }
     }
 }

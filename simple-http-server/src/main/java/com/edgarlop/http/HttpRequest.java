@@ -17,7 +17,7 @@ public class HttpRequest {
         // 1️⃣ Request line
         String requestLine = reader.readLine();
         if (requestLine == null || requestLine.isEmpty()) {
-            throw new IOException("Empty request");
+            throw new BadRequestException("Empty Request");
         }
 
         String[] parts = requestLine.split(" ");
