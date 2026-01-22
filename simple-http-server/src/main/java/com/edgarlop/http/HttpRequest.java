@@ -21,6 +21,10 @@ public class HttpRequest {
         }
 
         String[] parts = requestLine.split(" ");
+
+        if (parts.length != 3) {
+            throw new BadRequestException("Invalid request line");
+        }
         this.method = parts[0];
         this.path = parts[1];
         this.version = parts[2];
@@ -31,8 +35,7 @@ public class HttpRequest {
             String[] headerParts = line.split(":", 2);
             headers.put(
                     headerParts[0].trim(),
-                    headerParts[1].trim()
-            );
+                    headerParts[1].trim());
         }
 
         // 3️⃣ Body (solo si existe Content-Length)
@@ -61,4 +64,3 @@ public class HttpRequest {
         return body;
     }
 }
-

@@ -31,15 +31,17 @@ public class ClientHandler implements Runnable {
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(socket.getInputStream()));
 
+            HttpRequest request = null;
+            HttpResponse response;
+
             while (true) {
-                HttpRequest request = new HttpRequest(reader);
-                HttpResponse response;
 
                 try {
+                    request = new HttpRequest(reader);
                     response = router.route(request);
                 } catch (BadRequestException e) {
                     Logger.warn(e.getMessage());
-                    response = HttpResponse.notFound();
+                    response = HttpResponse.badRequest();
                 } catch (Exception e) {
                     Logger.error(e.toString());
                     response = HttpResponse.internalServerError();
@@ -67,6 +69,7 @@ public class ClientHandler implements Runnable {
             Logger.info("Connection closed: " + socket.getRemoteSocketAddress());
         } finally {
             try {
+                Logger.info("Clossing connection");
                 socket.close();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
