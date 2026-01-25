@@ -2,6 +2,9 @@ package com.edgarlop.router;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Map;
+
+import com.edgarlop.util.JsonParser;
 import com.edgarlop.util.Logger;
 
 import com.edgarlop.http.HttpRequest;
@@ -10,12 +13,12 @@ import com.edgarlop.http.HttpResponse;
 public class Router {
 
     public HttpResponse route(HttpRequest request) {
-        HttpResponse response = new HttpResponse();
+        HttpResponse response = new HttpResponse("text/plain");
 
         if (request.getMethod().equals("GET")) {
             response = handleGet(request, response);
         } else if (request.getMethod().equals("POST")) {
-            handlePost(request, response);
+            response = handlePost(request, response);
         } else {
             response.setStatus(405, "Method Not Allowed");
             response.setBody("Method not supported");
@@ -38,11 +41,19 @@ public class Router {
         return response;
     }
 
-    private void handlePost(HttpRequest request, HttpResponse response) {
-        if (request.getPath().equals("/echo")) {
-            response.setBody("You sent: " + request.getBody());
+    private HttpResponse handlePost(HttpRequest request, HttpResponse response) {
+        if (request.getPath().equals("/users")) {
+            Map<String, String> data = JsonParser.parse(request.getBody());
+
+            String name = data.get("name");
+            String age = data.get("age");
+
+            response = HttpResponse.json(
+                    "{\"status\":\"created\",\"name\":\"" + name + "\"}");
+
         } else {
-            HttpResponse.notFound();
+            response = HttpResponse.internalServerError();
         }
+        return response;
     }
 }

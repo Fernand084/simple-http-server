@@ -14,8 +14,8 @@ public class HttpResponse {
     private String body = "";
     private final Map<String, String> headers = new HashMap<>();
 
-    public HttpResponse() {
-        headers.put("Content-Type", "text/plain");
+    public HttpResponse(String contentType) {
+        headers.put("Content-Type", contentType);
     }
 
     public void setStatus(int code, String text) {
@@ -66,23 +66,30 @@ public class HttpResponse {
     }
 
     public static HttpResponse notFound() {
-        HttpResponse res = new HttpResponse();
+        HttpResponse res = new HttpResponse("text/plain");
         res.setStatus(404, "Not Found");
         res.setBody("Sorry, the page you're looking for does not exists.");
         return res;
     }
 
     public static HttpResponse internalServerError() {
-        HttpResponse res = new HttpResponse();
+        HttpResponse res = new HttpResponse("text/plain");
         res.setStatus(500, "Internal Server Error");
         res.setBody("Something went wrong");
         return res;
     }
 
     public static HttpResponse badRequest() {
-        HttpResponse res = new HttpResponse();
+        HttpResponse res = new HttpResponse("text/plain");
         res.setStatus(400, "Bad Request");
         res.setBody("This request is not valid!");
+        return res;
+    }
+
+    public static HttpResponse json(String json) {
+        HttpResponse res = new HttpResponse("application/json");
+        res.setStatus(200, "OK");
+        res.setBody(json);
         return res;
     }
 
